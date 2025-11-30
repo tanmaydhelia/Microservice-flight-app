@@ -10,13 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.flightapp.dto.BookingRequest;
-import com.flightapp.dto.CancelResponse;
-import com.flightapp.dto.FlightSearchRequest;
-import com.flightapp.dto.FlightSummaryDto;
-import com.flightapp.dto.ItineraryDto;
-import com.flightapp.service.BookingService;
-import com.flightapp.service.FlightService;
+import com.flightbookingservice.dto.BookingRequest;
+import com.flightbookingservice.dto.CancelResponse;
+import com.flightbookingservice.dto.ItineraryDto;
+import com.flightbookingservice.service.BookingService;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -24,20 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1.0/flight")
-public class FlightController {
-	private final FlightService flightService;
+public class BookingController {
 	private final BookingService bookingService;
 	
-	public FlightController(FlightService flightService, BookingService bookingService) {
+	public BookingController(BookingService bookingService) {
 		super();
-		this.flightService = flightService;
 		this.bookingService = bookingService;
-	}
-	
-	@PostMapping("/search")
-	public List<FlightSummaryDto> searchFlights(@RequestBody @Valid FlightSearchRequest req){
-		log.info("POST /api/v1.0/flight/search from={} to={} date={} tripType={}", req.getFrom(), req.getTo(), req.getJourneyDate(), req.getTripType());
-		return flightService.searchFlights(req);
 	}
 	
 	@PostMapping("/booking/{flightId}")

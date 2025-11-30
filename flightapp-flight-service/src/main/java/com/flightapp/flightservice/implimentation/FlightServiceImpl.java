@@ -88,6 +88,8 @@ public class FlightServiceImpl implements FlightService{
 		f.setDepartureTime(flight.getDepartureTime());
 		f.setArrivalTime(flight.getArrivalTime());
 		f.setPrice(flight.getPrice());
+		f.setAvailableSeats(flight.getAvailableSeats());
+		
 		return f;
 	}
 }

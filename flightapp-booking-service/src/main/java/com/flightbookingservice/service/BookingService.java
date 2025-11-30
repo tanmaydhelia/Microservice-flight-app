@@ -1,10 +1,10 @@
-package com.flightapp.service;
+package com.flightbookingservice.service;
 
 import java.util.List;
 
-import com.flightapp.dto.BookingRequest;
-import com.flightapp.dto.CancelResponse;
-import com.flightapp.dto.ItineraryDto;
+import com.flightbookingservice.dto.BookingRequest;
+import com.flightbookingservice.dto.CancelResponse;
+import com.flightbookingservice.dto.ItineraryDto;
 
 public interface BookingService {
 	

@@ -1,4 +1,4 @@
-package com.flightapp.exception;
+package com.flightbookingservice.exception;
 
 public class CancellationNotAllowedException extends RuntimeException{
 	private static final long serialVersionUID = 1L;

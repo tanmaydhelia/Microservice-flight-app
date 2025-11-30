@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import lombok.Data;
+
+@Data
 public class FlightSummaryDto {
 
 	private int flightId;
@@ -19,68 +22,7 @@ public class FlightSummaryDto {
 	private LocalDateTime arrivalTime;
 	
 	private int price;
+	
+	private int availableSeats;
 
-	public int getFlightId() {
-		return flightId;
-	}
-
-	public void setFlightId(int flightId) {
-		this.flightId = flightId;
-	}
-
-	public String getAirlineName() {
-		return airlineName;
-	}
-
-	public void setAirlineName(String airlineName) {
-		this.airlineName = airlineName;
-	}
-
-	public String getAirlineCode() {
-		return airlineCode;
-	}
-
-	public void setAirlineCode(String airlineCode) {
-		this.airlineCode = airlineCode;
-	}
-
-	public String getFromAirport() {
-		return fromAirport;
-	}
-
-	public void setFromAirport(String fromAirport) {
-		this.fromAirport = fromAirport;
-	}
-
-	public String getToAirport() {
-		return toAirport;
-	}
-
-	public void setToAirport(String toAirport) {
-		this.toAirport = toAirport;
-	}
-
-	public LocalDateTime getDepartureTime() {
-		return departureTime;
-	}
-
-	public void setDepartureTime(LocalDateTime departureTime) {
-		this.departureTime = departureTime;
-	}
-
-	public LocalDateTime getArrivalTime() {
-		return arrivalTime;
-	}
-
-	public void setArrivalTime(LocalDateTime arrivalTime) {
-		this.arrivalTime = arrivalTime;
-	}
-
-	public int getPrice() {
-		return price;
-	}
-
-	public void setPrice(int price) {
-		this.price = price;
-	}
 }
