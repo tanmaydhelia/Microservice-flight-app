@@ -6,8 +6,8 @@
 
 ### 1. Microservice Decomposition
 The monolithic application was decomposed into independent, domain-driven services:
-- **Flight Service (`8081`):** Handles flight inventory and search operations.
-- **Booking Service (`8082`):** Manages booking transactions and passenger information.
+- **Flight Service (`9080`):** Handles flight inventory and search operations.
+- **Booking Service (`9090`):** Manages booking transactions and passenger information.
 
 ### 2. Database per Service
 Implemented the "Database per Service" pattern to ensure loose coupling:
