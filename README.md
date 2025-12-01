@@ -69,11 +69,12 @@ graph TD
     FlightSvc --> FlightDB
     BookingSvc --> BookingDB
 
-    style GW fill:#ffccff,stroke:#333,stroke-width:1px
-    style FlightSvc fill:#cce0ff,stroke:#333,stroke-width:1px
-    style BookingSvc fill:#cce0ff,stroke:#333,stroke-width:1px
-    style Config fill:#fff2b3,stroke:#333,stroke-width:1px
-    style Eureka fill:#fff2b3,stroke:#333,stroke-width:1px
+    style GW fill:#ffffff,stroke:#000000,stroke-width:1px
+    style FlightSvc fill:#ffffff,stroke:#000000,stroke-width:1px
+    style BookingSvc fill:#ffffff,stroke:#000000,stroke-width:1px
+    style Config fill:#ffffff,stroke:#000000,stroke-width:1px
+    style Eureka fill:#ffffff,stroke:#000000,stroke-width:1px
+
 ```
 
 ## 📂 Project Structure
