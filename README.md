@@ -89,3 +89,53 @@ Microservices-flight-app/
 ├── jmeter-reports/             # Performance dashboards
 └── postman-reports/            # Newman execution logs
 ```
+
+## How to Run the System
+
+### Start the Config Server
+cd flightapp-config-server
+mvn spring-boot:run
+
+### Start the Eureka Server
+cd flightapp-service-registry
+mvn spring-boot:run
+
+### Start the Flight Service
+cd flightapp-flight-service
+mvn spring-boot:run
+
+### Start the Booking Service
+cd flightapp-booking-service
+mvn spring-boot:run
+
+### Start the API Gateway
+cd flightapp-api-gateway
+mvn spring-boot:run
+
+## API Testing with Newman
+
+### Run Postman Collection
+newman run postman_collection.json -r html --reporter-html-export postman-reports/report.html
+
+### Output Location
+postman-reports/
+
+## Performance Testing with JMeter
+
+### Execute JMeter in CLI (Non-GUI Mode)
+jmeter -n -t TestPlan.jmx -l Results.jtl -e -o jmeter-reports/
+
+### Output Location
+jmeter-reports/
+
+## Code Quality and Coverage
+
+### JaCoCo Coverage
+mvn clean test
+
+### Coverage Report Directory
+target/site/jacoco/
+
+### SonarQube Scan
+mvn sonar:sonar
+
