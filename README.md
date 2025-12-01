@@ -71,8 +71,20 @@ graph TD
 
     style GW fill:#ffccff,stroke:#333,stroke-width:1px
     style FlightSvc fill:#cce0ff,stroke:#333,stroke-width:1px
-```
-
     style BookingSvc fill:#cce0ff,stroke:#333,stroke-width:1px
     style Config fill:#fff2b3,stroke:#333,stroke-width:1px
     style Eureka fill:#fff2b3,stroke:#333,stroke-width:1px
+```
+
+## 📂 Project Structure
+
+```
+Microservices-flight-app/
+├── flightapp-api-gateway/      # Entry point and routing (Port 9000)
+├── flightapp-booking-service/  # Booking business logic (Port 8082)
+├── flightapp-config-server/    # Centralized configuration (Port 8888)
+├── flightapp-flight-service/   # Inventory and search logic (Port 8081)
+├── flightapp-service-registry/ # Eureka discovery server (Port 8761)
+├── jmeter-reports/             # Performance dashboards
+└── postman-reports/            # Newman execution logs
+```
