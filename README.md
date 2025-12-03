@@ -26,7 +26,7 @@ Implemented the "Database per Service" pattern to ensure loose coupling:
 - **Workflow:** The *Booking Service* communicates with the *Flight Service* over HTTP to validate flights and update seat availability.
 
 ### 6. Centralized Configuration
-- **Spring Cloud Config Server (`8888`):** Manages all service configurations externally via a centralized Git repository.
+- **Spring Cloud Config Server (`8888`):** Manages all service configurations externally via a centralized Git repository. (https://github.com/tanmaydhelia/flight-config-repo)
 
 ## 🏗️ Architecture Diagram
 
