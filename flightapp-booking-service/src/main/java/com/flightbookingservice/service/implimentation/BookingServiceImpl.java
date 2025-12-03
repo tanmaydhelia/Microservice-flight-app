@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.flightbookingservice.dto.BookingCancelledEvent;
+import com.flightbookingservice.dto.BookingPlacedEvent;
 import com.flightbookingservice.dto.BookingRequest;
 import com.flightbookingservice.dto.CancelResponse;
 import com.flightbookingservice.dto.FlightSummaryDto;
@@ -42,8 +43,11 @@ import lombok.extern.slf4j.Slf4j;
 public class BookingServiceImpl implements BookingService {
 	
 	@Autowired
-	private KafkaTemplate<String, BookingCancelledEvent> kafkaTemplate;
+	private KafkaTemplate<String, BookingCancelledEvent> cancelTemplate;
    
+	@Autowired
+	private KafkaTemplate<String, BookingPlacedEvent> placedTemplate;
+	
 	private final UserRepository userRepository;
     private final ItineraryRepository itineraryRepository;
     private final FlightClient flightClient; // Replaces FlightRepository
@@ -132,6 +136,18 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Itinerary added successfully with PNR={} for user={}", i.getPnr(), user.getName());
 
+        try {
+            BookingPlacedEvent event = new BookingPlacedEvent();
+            event.setPnr(i.getPnr());
+            event.setEmail(user.getEmail());
+            event.setName(user.getName());
+            
+            placedTemplate.send("booking-placed-topic", event);
+            log.info("Published BookingPlacedEvent for PNR: {}", i.getPnr());
+        } catch (Exception e) {
+            log.error("Failed to publish booking event (non-fatal)", e);
+        }
+        
         return toItineraryDto(i);
     }
 
@@ -252,7 +268,7 @@ public class BookingServiceImpl implements BookingService {
             event.setSeatsToRelease(b.getPassengers().size());
             
             // Publish to Kafka
-            kafkaTemplate.send("booking-cancellation-topic", event);
+            cancelTemplate.send("booking-cancellation-topic", event);
        }
 
        log.info("Cancellation processed locally for pnr={}. Events published.", pnr);
