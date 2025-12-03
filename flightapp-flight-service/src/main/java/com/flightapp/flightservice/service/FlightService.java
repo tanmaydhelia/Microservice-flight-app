@@ -12,4 +12,6 @@ public interface FlightService {
 	FlightSummaryDto getFlightById(int flightId);
     
 	void updateSeats(int flightId, int seats);
+	
+	
 }

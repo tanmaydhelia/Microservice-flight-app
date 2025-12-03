@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.flightbookingservice.dto.BookingCancelledEvent;
 import com.flightbookingservice.dto.BookingRequest;
 import com.flightbookingservice.dto.CancelResponse;
 import com.flightbookingservice.dto.FlightSummaryDto;
@@ -25,7 +28,6 @@ import com.flightbookingservice.entity.Role;
 import com.flightbookingservice.entity.TripSegmentType;
 import com.flightbookingservice.entity.TripType;
 import com.flightbookingservice.entity.User;
-import com.flightbookingservice.exception.CancellationNotAllowedException;
 import com.flightbookingservice.exception.ResourceNotFoundException;
 import com.flightbookingservice.exception.SeatNotAvailableException;
 import com.flightbookingservice.feignclient.FlightClient;
@@ -38,10 +40,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-
-    private final UserRepository userRepository;
+	
+	@Autowired
+	private KafkaTemplate<String, BookingCancelledEvent> kafkaTemplate;
+   
+	private final UserRepository userRepository;
     private final ItineraryRepository itineraryRepository;
     private final FlightClient flightClient; // Replaces FlightRepository
+   
 
     public BookingServiceImpl(UserRepository userRepository, FlightClient flightClient,
                               ItineraryRepository itineraryRepository) {
@@ -170,54 +176,93 @@ public class BookingServiceImpl implements BookingService {
         return i.stream().map(this::toItineraryDto).toList();
     }
 
+//Cancellation by Feign Client using Flight Service    
+//    @Override
+//    @Transactional
+//    public CancelResponse cancelByPnr(String pnr) {
+//        log.info("Attempting Cancel for pnr = {}", pnr);
+//
+//        Itinerary i = itineraryRepository.findByPnr(pnr)
+//                .orElseThrow(() -> new ResourceNotFoundException("Itinerary not found for PNR: " + pnr));
+//
+//        LocalDateTime curr = LocalDateTime.now();
+//
+//        // Validate cancellation policy by fetching Flight info
+//        for (Booking b : i.getBookings()) {
+//            if (b.getStatus() != BookingStatus.BOOKED) {
+//                continue;
+//            }
+//
+//            // Fetch flight details to get current Departure Time
+//            FlightSummaryDto flightDto = flightClient.getFlightById(b.getFlightId());
+//            LocalDateTime deptTime = flightDto.getDepartureTime();
+//
+//            if (curr.plusHours(24).isAfter(deptTime)) {
+//                log.warn("Cancellation not Allowed for pnr={}", pnr);
+//                throw new CancellationNotAllowedException("Cannot Cancel as booking within 24hrs");
+//            }
+//        }
+//
+//        // Process Cancellation
+//        for (Booking b : i.getBookings()) {
+//            if (b.getStatus() == BookingStatus.BOOKED) {
+//                b.setStatus(BookingStatus.CANCELLED);
+//                
+//                int passengerCount = b.getPassengers().size();
+//                
+//                // Release seats via Network Call (+ve value)
+//                flightClient.updateSeats(b.getFlightId(), passengerCount);
+//            }
+//        }
+//
+//        i.setStatus(BookingStatus.CANCELLED);
+//        itineraryRepository.save(i);
+//
+//        log.info("Cancellation Successful for pnr={}!!!", pnr);
+//
+//        CancelResponse cr = new CancelResponse();
+//        cr.setPnr(pnr);
+//        cr.setStatus(BookingStatus.CANCELLED);
+//        cr.setMessage("Booking Cancelled Successfully!!!");
+//        return cr;
+//    }
+    
+    //Cancellation via Kafka event
     @Override
     @Transactional
     public CancelResponse cancelByPnr(String pnr) {
-        log.info("Attempting Cancel for pnr = {}", pnr);
+    	log.info("Attempting Cancel for pnr = {}", pnr);
 
-        Itinerary i = itineraryRepository.findByPnr(pnr)
-                .orElseThrow(() -> new ResourceNotFoundException("Itinerary not found for PNR: " + pnr));
-
-        LocalDateTime curr = LocalDateTime.now();
-
-        // Validate cancellation policy by fetching Flight info
-        for (Booking b : i.getBookings()) {
-            if (b.getStatus() != BookingStatus.BOOKED) {
-                continue;
-            }
-
-            // Fetch flight details to get current Departure Time
-            FlightSummaryDto flightDto = flightClient.getFlightById(b.getFlightId());
-            LocalDateTime deptTime = flightDto.getDepartureTime();
-
-            if (curr.plusHours(24).isAfter(deptTime)) {
-                log.warn("Cancellation not Allowed for pnr={}", pnr);
-                throw new CancellationNotAllowedException("Cannot Cancel as booking within 24hrs");
-            }
-        }
-
-        // Process Cancellation
-        for (Booking b : i.getBookings()) {
-            if (b.getStatus() == BookingStatus.BOOKED) {
-                b.setStatus(BookingStatus.CANCELLED);
-                
-                int passengerCount = b.getPassengers().size();
-                
-                // Release seats via Network Call (+ve value)
-                flightClient.updateSeats(b.getFlightId(), passengerCount);
-            }
-        }
-
+    	Itinerary i = itineraryRepository.findByPnr(pnr)
+    			.orElseThrow(() -> new ResourceNotFoundException("Itinerary not found for PNR: " + pnr));
+    	
+    	// 1. Update Local DB Status
         i.setStatus(BookingStatus.CANCELLED);
+       
+        for (Booking b : i.getBookings()) {
+            b.setStatus(BookingStatus.CANCELLED);
+        }
+        
         itineraryRepository.save(i);
+        
+        for (Booking b : i.getBookings()) {
+            BookingCancelledEvent event = new BookingCancelledEvent();
+            event.setPnr(pnr);
+            event.setFlightId(b.getFlightId());
+            event.setSeatsToRelease(b.getPassengers().size());
+            
+            // Publish to Kafka
+            kafkaTemplate.send("booking-cancellation-topic", event);
+       }
 
-        log.info("Cancellation Successful for pnr={}!!!", pnr);
-
-        CancelResponse cr = new CancelResponse();
-        cr.setPnr(pnr);
-        cr.setStatus(BookingStatus.CANCELLED);
-        cr.setMessage("Booking Cancelled Successfully!!!");
-        return cr;
+       log.info("Cancellation processed locally for pnr={}. Events published.", pnr);
+        
+       // 3. Return response immediately
+       CancelResponse cr = new CancelResponse();
+       cr.setPnr(pnr);
+       cr.setStatus(BookingStatus.CANCELLED);
+       cr.setMessage("Booking Cancelled Successfully!!!");
+       return cr;
     }
 
     // Updated to accept FlightSummaryDto instead of Flight Entity

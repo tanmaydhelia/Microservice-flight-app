@@ -1,7 +1,5 @@
 package com.flightbookingservice.dto;
 
-import com.flightbookingservice.entity.BookingStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CancelResponse {
+public class BookingCancelledEvent {
 	private String pnr;
-	private BookingStatus status;
-	private String message;
+	private Integer flightId;
+	private Integer seatsToRelease;
 }
