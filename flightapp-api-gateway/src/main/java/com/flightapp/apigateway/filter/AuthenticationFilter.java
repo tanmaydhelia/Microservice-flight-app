@@ -1,6 +1,5 @@
 package com.flightapp.apigateway.filter;
 
-import java.io.ObjectInputFilter.Config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
