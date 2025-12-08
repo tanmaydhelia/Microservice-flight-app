@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1.0/flight")
+@RequestMapping("/api")
 public class BookingController {
 	private final BookingService bookingService;
 	
@@ -29,7 +29,7 @@ public class BookingController {
 		this.bookingService = bookingService;
 	}
 	
-	@PostMapping("/booking/{flightId}")
+	@PostMapping("/book/{flightId}")
 	public ItineraryDto bookTicket(@PathVariable int flightId, @RequestBody @Valid BookingRequest req) {
 		log.info("POST /api/v1.0/flight/booking/{} for email={} tripType={}",
                 flightId, req.getEmail(), req.getTripType());
@@ -43,13 +43,13 @@ public class BookingController {
 		return bookingService.getItineraryByPnr(pnr);
 	}
 	
-	@GetMapping("/booking/history/{emailId}")
+	@GetMapping("/history/{emailId}")
 	public List<ItineraryDto> getBookinghistory(@PathVariable String emailId){
 		log.info("GET /api/v1.0/flight/booking/history/{}",emailId);
 		return bookingService.getHistoryByEmail(emailId);
 	}
 	
-	@DeleteMapping("/booking/cancel/{pnr}")
+	@DeleteMapping("/cancel/{pnr}")
 	public CancelResponse cancelBooking(@PathVariable String pnr) {
 		log.info("DELETE /api/v1.0/flight/booking/cancel/{}",pnr);
 		return bookingService.cancelByPnr(pnr);

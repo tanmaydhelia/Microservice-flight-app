@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1.0/flight")
+@RequestMapping("/api")
 public class FlightController {
 	private final FlightService flightService;
 	

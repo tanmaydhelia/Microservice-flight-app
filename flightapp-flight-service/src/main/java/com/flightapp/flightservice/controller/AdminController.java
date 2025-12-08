@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1.0/flight/airline")
+@RequestMapping("/api/airline")
 public class AdminController {
 	private final AdminService adminService;
 

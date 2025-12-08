@@ -47,6 +47,7 @@ public class BookingServiceImpl implements BookingService {
    
 	@Autowired
 	private KafkaTemplate<String, BookingPlacedEvent> placedTemplate;
+
 	
 	private final UserRepository userRepository;
     private final ItineraryRepository itineraryRepository;
@@ -133,6 +134,8 @@ public class BookingServiceImpl implements BookingService {
         
         i.setBookings(bookings);
         itineraryRepository.save(i);
+        
+        
 
         log.info("Itinerary added successfully with PNR={} for user={}", i.getPnr(), user.getName());
 
