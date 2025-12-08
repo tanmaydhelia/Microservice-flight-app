@@ -92,6 +92,24 @@ Microservices-flight-app/
 
 ## How to Run the System
 
+### 🐳 Option 1: Using Docker (Recommended)
+
+The easiest way to run the entire system with all dependencies:
+
+```bash
+docker-compose up --build
+```
+
+For detailed Docker instructions, see [README-DOCKER.md](README-DOCKER.md)
+
+### 🔧 Option 2: Manual Setup
+
+#### Prerequisites
+- Java 17
+- Maven 3.x
+- MySQL 8.0
+- Apache Kafka
+
 ### Start the Config Server
 ```
 cd flightapp-config-server
