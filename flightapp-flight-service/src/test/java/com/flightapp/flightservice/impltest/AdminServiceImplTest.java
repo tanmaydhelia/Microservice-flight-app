@@ -21,7 +21,6 @@ import com.flightapp.flightservice.dto.request.FlightInventoryItemDto;
 import com.flightapp.flightservice.dto.response.AirlineInventoryResponse;
 import com.flightapp.flightservice.entity.Airline;
 import com.flightapp.flightservice.entity.Flight;
-import com.flightapp.flightservice.exception.ResourceNotFoundException;
 import com.flightapp.flightservice.implimentation.AdminServiceImpl;
 import com.flightapp.flightservice.repository.AirlineRepository;
 import com.flightapp.flightservice.repository.FlightRepository;
