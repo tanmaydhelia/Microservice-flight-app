@@ -14,7 +14,7 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtService {
-	public static final String SECRET_KEY = "This is the Key, TANMAY DHELIA";
+	public static final String SECRET_KEY = "afafasfafafasfafafasfafafasfafafasfafafasfafafasfafafasfafafasfafafasfafafasfafafasf";
 	
 	public void validateToken(final String token) {
 		Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
