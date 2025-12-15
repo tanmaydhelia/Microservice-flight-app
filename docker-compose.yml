@@ -1,27 +1,27 @@
 version: '3.8'
 
 services:
-  # # -----------------------------
-  # # 1. DATABASE SERVICE
-  # # -----------------------------
-  # flight-db:
-  #   image: mysql:8.0
-  #   container_name: flight-db
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: root
-  #     # Removing MYSQL_DATABASE because we use init.sql now
-  #   ports:
-  #     - "3307:3306"
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #     # This loads your multiple databases on startup:
-  #     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-  #   networks:
-  #     - flight-network
-  #   healthcheck:
-  #     test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-  #     timeout: 10s
-  #     retries: 10
+  # -----------------------------
+  # 1. DATABASE SERVICE
+  # -----------------------------
+  flight-db:
+    image: mysql:8.0
+    container_name: flight-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      # Removing MYSQL_DATABASE because we use init.sql now
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # This loads your multiple databases on startup:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - flight-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
 
   # -----------------------------
   # 2. EUREKA SERVER (Discovery)
@@ -40,80 +40,99 @@ services:
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
 
-  # # -----------------------------
-  # # 3. AUTH SERVICE (Security)
-  # # -----------------------------
-  # auth-service:
-  #   build: ./flightapp-identity-service
-  #   container_name: identity-service
-  #   ports:
-  #     - "9091:9091"
-  #   environment:
-  #     - SPRING_PROFILES_ACTIVE=docker
-  #     # CONNECTS TO 'userdb' (Created by init.sql)
-  #     - SPRING_DATASOURCE_URL=jdbc:mysql://flight-db:3306/userdb?allowPublicKeyRetrieval=true&useSSL=false
-  #     - SPRING_DATASOURCE_USERNAME=root
-  #     - SPRING_DATASOURCE_PASSWORD=root
-  #     - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
-  #     # UPDATED HOSTNAME: Pointing to 'service-registry', not 'eureka-server'
-  #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
-  #   depends_on:
-  #     flight-db:
-  #       condition: service_healthy
-  #     eureka-server:
-  #       condition: service_started
-  #   networks:
-  #     - flight-network
+  # -----------------------------
+  # 3. AUTH SERVICE (Security)
+  # -----------------------------
+  auth-service:
+    build: ./flightapp-identity-service
+    container_name: identity-service
+    ports:
+      - "9091:9091"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      # CONNECTS TO 'userdb' (Created by init.sql)
+      - SPRING_DATASOURCE_URL=jdbc:mysql://flight-db:3306/userdb?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
+      # UPDATED HOSTNAME: Pointing to 'service-registry', not 'eureka-server'
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      flight-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - flight-network
 
-  # # -----------------------------
-  # # 4. FLIGHT SERVICE (Main App)
-  # # -----------------------------
-  # flight-service:
-  #   build: ./flightapp-flight-service
-  #   container_name: flight-service
-  #   ports:
-  #     - "9080:9080"
-  #   environment:
-  #     - SPRING_PROFILES_ACTIVE=docker
-  #     # CONNECTS TO 'airlinesdb' (Created by init.sql)
-  #     - SPRING_DATASOURCE_URL=jdbc:mysql://flight-db:3306/airlinesdb?allowPublicKeyRetrieval=true&useSSL=false
-  #     - SPRING_DATASOURCE_USERNAME=root
-  #     - SPRING_DATASOURCE_PASSWORD=root
-  #     - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
-  #     # UPDATED HOSTNAME
-  #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
-  #   depends_on:
-  #     flight-db:
-  #       condition: service_healthy
-  #     eureka-server:
-  #       condition: service_started
-  #   networks:
-  #     - flight-network  
+  # -----------------------------
+  # 4. FLIGHT SERVICE (Main App)
+  # -----------------------------
+  flight-service:
+    build: ./flightapp-flight-service
+    container_name: flight-service
+    ports:
+      - "9080:9080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      # CONNECTS TO 'airlinesdb' (Created by init.sql)
+      - SPRING_DATASOURCE_URL=jdbc:mysql://flight-db:3306/airlinesdb?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
+      # UPDATED HOSTNAME
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      flight-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - flight-network  
 
-  # # -----------------------------
-  # # 4. Booking SERVICE (Main App)
-  # # -----------------------------
-  # booking-service:
-  #   build: ./flightapp-booking-service
-  #   container_name: booking-service
-  #   ports:
-  #     - "9090:9090"
-  #   environment:
-  #     - SPRING_PROFILES_ACTIVE=docker
-  #     # CONNECTS TO 'airlinesdb' (Created by init.sql)
-  #     - SPRING_DATASOURCE_URL=jdbc:mysql://flight-db:3306/bookingsdb?allowPublicKeyRetrieval=true&useSSL=false
-  #     - SPRING_DATASOURCE_USERNAME=root
-  #     - SPRING_DATASOURCE_PASSWORD=root
-  #     - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
-  #     # UPDATED HOSTNAME
-  #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
-  #   depends_on:
-  #     flight-db:
-  #       condition: service_healthy
-  #     eureka-server:
-  #       condition: service_started
-  #   networks:
-  #     - flight-network  
+  # -----------------------------
+  # 4. Booking SERVICE (Main App)
+  # -----------------------------
+  booking-service:
+    build: ./flightapp-booking-service
+    container_name: booking-service
+    ports:
+      - "9090:9090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      # CONNECTS TO 'airlinesdb' (Created by init.sql)
+      - SPRING_DATASOURCE_URL=jdbc:mysql://flight-db:3306/bookingsdb?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
+      # UPDATED HOSTNAME
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      flight-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - flight-network  
+
+  # -----------------------------
+  # 5. API GATEWAY
+  # -----------------------------
+  api-gateway:
+    build: ./flightapp-api-gateway
+    container_name: api-gateway
+    ports:
+      - "9000:9000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      # UPDATED HOSTNAME
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      - eureka-server
+      - auth-service
+      - flight-service
+    networks:
+      - flight-network
 
 volumes:
   mysql_data:
